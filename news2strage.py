@@ -44,15 +44,42 @@ for entry in response.entries:
         document['link'] = entry.link
         document['updated'] = entry.updated
 
+        print("process - " + entry.link)
+
+        # Get HeadLine
+        headLineHtml = urlopen(entry.link)
+        headLineSoup = BeautifulSoup(headLineHtml, 'lxml')
+        headLineNews = headLineSoup.find_all("a", class_="newsLink")
+        if len(headLineNews) > 0 :
+            document['detailLink'] = headLineNews[0].get("href")
+        else :
+            document['detailLink'] = ""
+            continue
+
+        print("process - " + document['detailLink'])
+
+        # Get Detail
+        detailHtml = urlopen(document['detailLink'])
+        detailSoup = BeautifulSoup(detailHtml, 'lxml')
+        detailNews = detailSoup.find_all("p", class_="ynDetailText")
+        if len(detailNews) > 0 :
+            document['newsString'] = detailNews[0].prettify()
+        else :
+            document['newsString'] = ""
+
 #Get All Documents
-for document in my_database:
-    print (document)
+#for document in my_database:
+#    print (document)
 
 #HTML Parser
-for document in my_database:
-    f = urlopen(document['link'])
-    soup = BeautifulSoup(f, 'lxml')
-    print(soup.title)
-    print(soup.title.string)
+# for document in my_database:
+#     f = urlopen(document['link'])
+#     soup = BeautifulSoup(f, 'lxml')
+#     print(soup.title)
+#     print(soup.title.string)
+#     print(soup.find_all("a", class_="newsLink")[0].get("href"))
+#     detail = urlopen(soup.find_all("a", class_="newsLink")[0].get("href"))
+#     detailSoup = BeautifulSoup(detail, 'lxml')
+#     print(detailSoup.find_all("p", class_="ynDetailText")[0])
 
 client.disconnect()
